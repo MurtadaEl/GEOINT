@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: geo-ingest
+  namespace: geoint
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: geo-ingest
+  template:
+    metadata:
+      labels:
+        app: geo-ingest
+    spec:
+      containers:
+        - name: geo-ingest
+          image: geo-ingest:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8000 # - Port that FastAPI will listen on

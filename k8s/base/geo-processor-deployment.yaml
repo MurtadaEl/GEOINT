@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: geo-processor
+  namespace: geoint
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: geo-processor
+  template:
+    metadata:
+      labels:
+        app: geo-processor
+    spec:
+      containers:
+        - name: geo-processor
+          image: geo-processor:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8000 # - Port that FastAPI will listen on
+          env:
+            - name: DB_HOST
+              value: postgis
+            - name: DB_PORT
+              value: "5432"
+            - name: DB_NAME
+              value: geoint-db
+            - name: DB_USER
+              value: user
+            - name: DB_PASSWORD
+              value: password
+              

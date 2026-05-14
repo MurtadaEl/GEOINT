@@ -1,7 +1,5 @@
 fastapi[standard]==0.136.1
 pydantic>=2.7.0,<3.0.0
-python-multipart
+asyncpg
 python-dotenv
-sqlalchemy
 geoalchemy2
-psycopg2-binary
