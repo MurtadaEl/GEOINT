@@ -13,6 +13,10 @@ spec:
       labels:
         app: geo-processor
     spec:
+      initContainers:
+        - name: wait-for-postgis
+          image: postgres:15
+          command: ['sh', '-c', 'until pg_isready -h postgis -p 5432; do sleep 2; done;']
       containers:
         - name: geo-processor
           image: geo-processor:latest

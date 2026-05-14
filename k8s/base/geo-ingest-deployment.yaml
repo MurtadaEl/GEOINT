@@ -13,9 +13,24 @@ spec:
       labels:
         app: geo-ingest
     spec:
+      initContainers:
+        - name: wait-for-postgis
+          image: postgres:15
+          command: ['sh', '-c', 'until pg_isready -h postgis -p 5432; do sleep 2; done;']
       containers:
         - name: geo-ingest
           image: geo-ingest:latest
           imagePullPolicy: Never
           ports:
-            - containerPort: 8000 # - Port that FastAPI will listen on
+            - containerPort: 8000
+          env:
+            - name: DB_HOST
+              value: postgis
+            - name: DB_PORT
+              value: "5432"
+            - name: DB_NAME
+              value: geoint-db
+            - name: DB_USER
+              value: user
+            - name: DB_PASSWORD
+              value: password
