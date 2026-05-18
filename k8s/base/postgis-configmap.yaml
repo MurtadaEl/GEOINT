@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgis-config
+  namespace: geoint
+data:
+  DB_HOST: postgis
+  DB_PORT: "5432"
+  DB_NAME: geoint-db

@@ -23,9 +23,15 @@ spec:
             - name: POSTGRES_DB
               value: geoint-db
             - name: POSTGRES_USER
-              value: user
+              valueFrom:
+                secretKeyRef:
+                  name: postgis-secret
+                  key: POSTGRES_USER
             - name: POSTGRES_PASSWORD
-              value: password
+              valueFrom:
+                secretKeyRef:
+                  name: postgis-secret
+                  key: POSTGRES_PASSWORD
           volumeMounts:
             - name: postgis-data
               mountPath: /var/lib/postgresql/data

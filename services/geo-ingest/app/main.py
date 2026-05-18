@@ -1,22 +1,14 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
-from pydantic import BaseModel
+from .database import get_db, init_db
+from .models import GeoData
 
-import asyncpg, os
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await init_db()
+    yield
 
-app = FastAPI()
-
-async def get_db():
-    return await asyncpg.connect(
-        host=os.getenv("DB_HOST", "postgis"),
-        port=int(os.getenv("DB_PORT", 5432)),
-        database=os.getenv("DB_NAME", "geoint-db"),
-        user=os.getenv("DB_USER", "user"),
-        password=os.getenv("DB_PASSWORD", "password")
-    )
-
-class GeoData(BaseModel):
-    name: str
-    coordinates: list[float]
+app = FastAPI(lifespan=lifespan)
 
 @app.get("/health")
 def health():
@@ -26,9 +18,8 @@ def health():
 async def ingest_tracks(geo_data: GeoData):
     conn = await get_db()
     await conn.execute(
-        "INSERT INTO assets (name, location) VALUES ($1, ST_MakePoint($2, $3))",
-        geo_data.name, geo_data.coordinates[0], geo_data.coordinates[1]
+        "INSERT INTO assets (name, location) VALUES ($1, ST_SetSRID(ST_MakePoint($2, $3), 4326))",
+        geo_data.name, geo_data.coordinates[0], geo_data.coordinates[1],
     )
     await conn.close()
     return {"message": "Track data ingested successfully"}
-

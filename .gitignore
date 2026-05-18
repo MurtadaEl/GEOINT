@@ -1,4 +1,20 @@
 CLAUDE.md
 
-/.env
+# virtual env
+.env/
+*.env
+
+# python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+
+# secrets (never commit these)
+postgis-secret.yaml
+k8s/base/postgis-secret.yaml
+
+# notes
 /notes

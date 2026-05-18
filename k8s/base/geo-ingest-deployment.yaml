@@ -25,12 +25,27 @@ spec:
             - containerPort: 8000
           env:
             - name: DB_HOST
-              value: postgis
+              valueFrom:
+                configMapKeyRef:
+                  name: postgis-config
+                  key: DB_HOST
             - name: DB_PORT
-              value: "5432"
+              valueFrom:
+                configMapKeyRef:
+                  name: postgis-config
+                  key: DB_PORT  
             - name: DB_NAME
-              value: geoint-db
+              valueFrom:
+                configMapKeyRef:
+                  name: postgis-config
+                  key: DB_NAME
             - name: DB_USER
-              value: user
+              valueFrom:
+                secretKeyRef:
+                  name: postgis-secret
+                  key: POSTGRES_USER
             - name: DB_PASSWORD
-              value: password
+              valueFrom:
+                secretKeyRef:
+                  name: postgis-secret
+                  key: POSTGRES_PASSWORD

@@ -1,27 +1,8 @@
 from fastapi import FastAPI
-from pydantic import BaseModel
-
-import asyncpg, os
+from .database import get_db
+from .models import GeoData, NearbyQuery
 
 app = FastAPI()
-
-class GeoData(BaseModel):
-    name: str
-    coordinates: list[float]
-
-class NearbyQuery(BaseModel):
-    lon: float
-    lat: float
-    radius_meters: float
-
-async def get_db():
-    return await asyncpg.connect(
-        host=os.getenv("DB_HOST", "postgis"),
-        port=int(os.getenv("DB_PORT", 5432)),
-        database=os.getenv("DB_NAME", "geoint-db"),
-        user=os.getenv("DB_USER", "user"),
-        password=os.getenv("DB_PASSWORD", "password")
-    )
 
 @app.get("/health")
 def health():
@@ -31,11 +12,10 @@ def health():
 async def process_geo_data(geo_data: GeoData):
     conn = await get_db()
     await conn.execute(
-        "INSERT INTO assets (name, location) VALUES ($1, ST_MakePoint($2, $3))",
-        geo_data.name, geo_data.coordinates[0], geo_data.coordinates[1]
+        "INSERT INTO assets (name, location) VALUES ($1, ST_SetSRID(ST_MakePoint($2, $3), 4326))",
+        geo_data.name, geo_data.coordinates[0], geo_data.coordinates[1],
     )
     await conn.close()
-
     return {"message": "stored", "data": geo_data}
 
 @app.post("/nearby")
@@ -46,12 +26,12 @@ async def nearby_assets(query: NearbyQuery):
         SELECT id, name, ST_AsText(location) AS location
         FROM assets
         WHERE ST_DWithin(
-            location,
-            ST_MakePoint($1,$2)::geography,
+            location::geography,
+            ST_MakePoint($1, $2)::geography,
             $3
         )
         """,
-        query.lon, query.lat, query.radius_meters
+        query.lon, query.lat, query.radius_meters,
     )
     await conn.close()
     return {"assets": [dict(row) for row in rows]}
