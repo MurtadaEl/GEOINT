@@ -1,0 +1,18 @@
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: allow-geoint-processor
+  namespace: geoint
+spec:
+  selector:
+    matchLabels:
+      app: geo-processor
+  action: ALLOW
+  rules:
+  - from:
+    - source:
+        notNamespaces: ["geoint"]
+    to:
+      - operation:
+          methods: ["GET"]
+          paths: ["/health", "/nearby"]

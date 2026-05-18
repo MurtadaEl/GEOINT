@@ -1,0 +1,17 @@
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: allow-processor-to-db
+  namespace: geoint
+spec:
+  selector:
+    matchLabels:
+      app: postgis
+  action: ALLOW
+  rules:
+  - from:
+    - source:
+        principals: ["cluster.local/ns/geoint/sa/default"]
+  - to:
+    - operation:
+        ports: ["5432"]

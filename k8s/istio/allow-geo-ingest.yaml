@@ -1,0 +1,18 @@
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: allow-geoint-ingest
+  namespace: geoint
+spec:
+  selector:
+    matchLabels:
+      app: geo-ingest
+  action: ALLOW
+  rules:
+  - from:
+    - source:
+        notNamespaces: ["geoint"]
+    to:
+      - operation:
+          methods: ["GET", "POST"]
+          paths: ["/health", "/tracks"]
